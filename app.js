@@ -4,7 +4,6 @@ const PORT = 3000
 const teacherRoutes = require('./routes/teacherRoutes')
 const userRouters = require('./routes/userRouters')
 
-
 app.use(express.json())
 app.use(express.urlencoded({ extended: true}))
 

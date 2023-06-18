@@ -1,53 +1,42 @@
-const { generateToken } = require("../helpers/jwt")
-const express = require("express")
-const fs = require ("fs")
-const data = require('../data/users.json')
-
-class UserController {
-    static async login(req, res){
-        try{
-            const users = {name: req.body.name, password: req.body.password}
-            const datausers = fs.readFileSync("./data/users.json")
-            const dataKonversi = JSON.parse(data)
-            if(user===dataKonversi){
-                const token = generateToken(response)
-                res.status(201).json({
-                    token
+const { generateToken } = require('../helpers/jwt');
+const fs = require('fs');
+class UsersController {
+    static login (req, res) {
+        fs.readFile('./data/users.json', 'utf8', (err, data) => {
+            if (err) {
+                res.status(500).json({
+                    message: err.message
                 })
+                console.log(err);
+            } else {
+                let users = JSON.parse(data);
+                let user = users.find(user => user.username === req.body.username);
+                if (user) {
+                    if (user.password === req.body.password) {
+                        let token = generateToken({
+                            id: user.id,
+                            username: user.username,
+                            password: user.password
+                        })
+
+                        res.status(200).json({
+                            message: 'success',
+                            token
+                        })
+                    } else {
+                        res.status(400).json({
+                            message: 'wrong password'
+                        })
+                    }
+                } else {
+                    res.status(400).json({
+                        message: 'wrong username'
+                    })
+                }
             }
-        }catch(error){
-            res.status(500).json(error)
-        }
+        })
     }
 
-    static async register(req, res) {
-        try {
-          const {
-            username,
-            email,
-            password
-          } = req.body
-    
-          const data = await User.create({
-            username,
-            email,
-            password
-          })
-    
-          const response = {
-            id: data.id,
-            username: data.username,
-            email: data.email
-          }
-    
-          res.status(201).json(response)
-    
-        } catch (error) {
-          res.status(error?.code || 500).json(error)
-          
-        }
-      }
-      
     static async getAllUsers(req, res){
         try{
             const datausers = fs.readFileSync("./data/users.json")
@@ -59,8 +48,6 @@ class UserController {
     }
 }
 
-// class UserController{
-//     
-// }
-
-module.exports = UserController
+module.exports = {
+    UsersController
+}
